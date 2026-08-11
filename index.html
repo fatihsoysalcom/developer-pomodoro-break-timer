@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Break Reminder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            flex-direction: column;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 300px;
+        }
+        h1 {
+            color: #0056b3;
+            margin-bottom: 20px;
+        }
+        #timer {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #007bff;
+        }
+        #status {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Developer Break Reminder</h1>
+        <p id="status">Ready to start your work session.</p>
+        <div id="timer">25:00</div>
+        <div class="controls">
+            <button id="startButton">Start Work (25 min)</button>
+            <button id="resetButton" disabled>Reset</button>
+        </div>
+        <p style="margin-top: 25px; font-size: 0.9em; color: #777;">
+            This tool helps prevent strain by encouraging regular breaks.
+        </p>
+    </div>
+
+    <script>
+        const timerDisplay = document.getElementById('timer');
+        const statusDisplay = document.getElementById('status');
+        const startButton = document.getElementById('startButton');
+        const resetButton = document.getElementById('resetButton');
+
+        let interval;
+        let timeLeft;
+        let isWorking = true; // true for work session, false for break
+        const workDuration = 25 * 60; // 25 minutes in seconds
+        const breakDuration = 5 * 60; // 5 minutes in seconds
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+        }
+
+        function startTimer(duration, sessionType) {
+            // This timer helps developers take regular breaks, a key strategy to prevent back/neck pain.
+            timeLeft = duration;
+            isWorking = (sessionType === 'work');
+            statusDisplay.textContent = isWorking ? "Work session in progress..." : "Break time! Stand up and stretch.";
+            startButton.disabled = true;
+            resetButton.disabled = false;
+            startButton.textContent = isWorking ? "Working..." : "Breaking...";
+            startButton.style.backgroundColor = isWorking ? "#007bff" : "#ffc107"; // Blue for work, yellow for break
+            startButton.style.color = isWorking ? "white" : "black";
+
+            updateTimerDisplay();
+
+            interval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    if (isWorking) {
+                        alert("Time for a break! Stand up, stretch, move around.");
+                        startTimer(breakDuration, 'break');
+                    } else {
+                        alert("Break over! Time to get back to work.");
+                        startTimer(workDuration, 'work');
+                    }
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(interval);
+            timeLeft = workDuration;
+            isWorking = true;
+            updateTimerDisplay();
+            statusDisplay.textContent = "Ready to start your work session.";
+            startButton.disabled = false;
+            resetButton.disabled = true;
+            startButton.textContent = "Start Work (25 min)";
+            startButton.style.backgroundColor = "#28a745"; // Green for start
+            startButton.style.color = "white";
+        }
+
+        startButton.addEventListener('click', () => startTimer(workDuration, 'work'));
+        resetButton.addEventListener('click', resetTimer);
+
+        // Initialize display
+        resetTimer();
+    </script>
+</body>
+</html>
